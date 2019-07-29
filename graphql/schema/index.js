@@ -8,6 +8,7 @@ export default buildSchema(`
 
     type RootQuery {
         login(phoneNumber: String!, password: String!): UserData!
+        userProfile(userId: ID!): UserProfile!
     }
 
     type RootMutation {
@@ -30,5 +31,12 @@ export default buildSchema(`
         userId: ID!
         token: String!
         tokenEXpiration: Int!
+    }
+
+    type UserProfile {
+        _id: ID!
+        email: String!
+        fullName: String!
+        phoneNumber: String!
     }
 `);

@@ -62,5 +62,15 @@ export default {
     } catch (err) {
       throw err;
     }
+  },
+  userProfile: async (args, req) => {
+    if (!req.isAuth) {
+      throw new Error("Authorization Denied");
+    }
+    const userProfile = await User.findOne({ _id: args.userId });
+
+    return {
+      ...userProfile._doc
+    };
   }
 };
