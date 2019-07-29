@@ -1,7 +1,7 @@
-// import authResolver from "./auth";
+import authResolver from "./auth";
 
-// const graphQlResolvers = {
-//     ...authResolver
-// };
+const graphQlResolvers = {
+  ...authResolver
+};
 
-// export default graphQlResolvers;
+export default graphQlResolvers;

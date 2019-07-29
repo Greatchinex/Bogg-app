@@ -7,7 +7,7 @@ export default buildSchema(`
     }
 
     type RootQuery {
-        blogs: [Blogs!]!
+        login(phoneNumber: String!, password: String!): UserData!
     }
 
     type RootMutation {
@@ -15,17 +15,20 @@ export default buildSchema(`
     }
 
     type Status {
-        message: String
-        value: Boolean
+        message: String!
+        value: Boolean!
     }
 
     input UserInput {
-        fullname: String!
+        fullName: String!
         email: String!
         password: String!
+        phoneNumber: String!
     }
 
-    type Blogs {
-        title: String!
+    type UserData {
+        userId: ID!
+        token: String!
+        tokenEXpiration: Int!
     }
 `);

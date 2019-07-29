@@ -4,6 +4,7 @@ import dotenv from "dotenv";
 
 import models from "./models";
 import graphQlSchema from "./graphql/schema";
+import graphQlResolvers from "./graphql/resolvers";
 
 const app = express();
 dotenv.config();
@@ -14,6 +15,7 @@ app.use(
   "/graphql",
   graphqlHTTP({
     schema: graphQlSchema,
+    rootValue: graphQlResolvers,
     graphiql: true
   })
 );
