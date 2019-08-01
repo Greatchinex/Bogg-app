@@ -15,6 +15,7 @@ app.use(isAuth);
 
 app.use(
   "/graphql",
+  // upload.single("blogImage"),
   graphqlHTTP({
     schema: graphQlSchema,
     rootValue: graphQlResolvers,
