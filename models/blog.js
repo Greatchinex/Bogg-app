@@ -14,6 +14,10 @@ const blogSchema = new Schema(
     },
     image: {
       type: String
+    },
+    createdBy: {
+      type: Schema.Types.ObjectId,
+      ref: "User"
     }
   },
   { timestamps: true }

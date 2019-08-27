@@ -20,7 +20,6 @@ export default {
       body: args.blogInput.body,
       fileName: args.blogInput.fileName
     });
-    console.log(req.file);
 
     // Save Blog to DB
     try {
@@ -35,15 +34,18 @@ export default {
       throw err;
     }
   },
-  viewBlog: async args => {
+  viewBlogs: async () => {
     try {
       const blogs = await Blog.find();
-      return blogs;
-      // return blogs.map(blog => {
-      //   return {
-      //     ...blog._doc
-      //   };
-      // });
+      // return blogs;
+      console.log(blogs);
+      return blogs.map(blog => {
+        return {
+          ...blog._doc,
+          updatedAt: new Date(blog._doc.updatedAt).toISOString(),
+          createdAt: new Date(blog._doc.createdAt).toISOString()
+        };
+      });
     } catch (err) {
       console.log(err);
       throw err;

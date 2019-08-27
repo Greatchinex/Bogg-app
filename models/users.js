@@ -19,6 +19,10 @@ const userSchema = new Schema({
   phoneNumber: {
     type: String,
     required: true
+  },
+  createdBlogs: {
+    type: Schema.Types.ObjectId,
+    ref: "Blog"
   }
 });
 
