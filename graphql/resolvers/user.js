@@ -1,29 +1,36 @@
+import {
+  ApolloError,
+  UserInputError,
+  AuthenticationError
+} from "apollo-server-express";
 import bcrypt from "bcryptjs";
 import jwt from "jsonwebtoken";
+import { combineResolvers } from "graphql-resolvers";
 
 import User from "../../models/users";
+import { isAuthenticated } from "../../services/authorization";
 
 export default {
-  createUser: async args => {
+  createUser: async (_, args) => {
     try {
       // Check for existing user
       const userCheck = await User.findOne({
-        email: args.userInput.email
+        email: args.email
       });
 
       if (userCheck) {
-        throw new Error("User With Email Already Exists");
+        throw new UserInputError("User With Email Already Exists");
       }
 
       // Hash User Password Before saving user to DB
-      const hashedPassword = await bcrypt.hash(args.userInput.password, 12);
+      const hashedPassword = await bcrypt.hash(args.password, 12);
 
       // Create user
       const newUser = new User({
-        fullName: args.userInput.fullName,
-        email: args.userInput.email,
+        fullName: args.fullName,
+        email: args.email,
         password: hashedPassword,
-        phoneNumber: args.userInput.phoneNumber
+        phoneNumber: args.phoneNumber
       });
 
       // Save user to DB
@@ -32,9 +39,11 @@ export default {
       // Response
       return {
         message: "User Was Created Successfully",
-        value: true
+        value: true,
+        user: savedUser
       };
     } catch (err) {
+      console.log(err);
       throw err;
     }
   },
@@ -43,34 +52,31 @@ export default {
       // Check if user exist in DB
       const user = await User.findOne({ phoneNumber: phoneNumber });
       if (!user) {
-        throw new Error("Incorrect Phone Number Or Password");
+        throw new UserInputError("Incorrect Phone Number Or Password");
       }
       // If User Exists then Compare Passwords
       const equalPassword = await bcrypt.compare(password, user.password);
       if (!equalPassword) {
-        throw new Error("Incorrect Phone Number Or Password");
+        throw new UserInputError("Incorrect Phone Number Or Password");
       }
       // Create token for user
       const token = jwt.sign({ userId: user._id }, process.env.SECRET, {
-        expiresIn: "1h"
+        expiresIn: "7d"
       });
+
+      // Response
       return {
-        userId: user._id,
-        token,
-        tokenEXpiration: 1
+        message: token,
+        value: true,
+        user: user
       };
     } catch (err) {
       throw err;
     }
   },
-  userProfile: async (args, req) => {
-    if (!req.isAuth) {
-      throw new Error("Authorization Denied");
-    }
+  userProfile: combineResolvers(isAuthenticated, async (_, args) => {
     const userProfile = await User.findOne({ _id: args.userId });
 
-    return {
-      ...userProfile._doc
-    };
-  }
+    return userProfile;
+  })
 };

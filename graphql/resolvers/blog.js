@@ -1,11 +1,12 @@
+import { ApolloError, AuthenticationError } from "apollo-server-express";
+import { combineResolvers } from "graphql-resolvers";
 import cloudinary from "cloudinary";
 import path from "path";
-// import multer from "multer";
 
 import Blog from "../../models/blog";
 import User from "../../models/users";
+import { isAuthenticated } from "../../services/authorization";
 
-// const upload = multer({ dest: "uploads/" });
 cloudinary.config({
   cloud_name: process.env.CLOUD_NAME,
   api_key: process.env.CLOUDINARY_API_KEY,
@@ -13,12 +14,12 @@ cloudinary.config({
 });
 
 export default {
-  createBlog: async (_, args, req) => {
+  createBlog: combineResolvers(isAuthenticated, async (_, args) => {
     // Create Blog
     const blog = new Blog({
-      title: args.blogInput.title,
-      body: args.blogInput.body,
-      fileName: args.blogInput.fileName
+      title: args.title,
+      body: args.body,
+      fileName: args.fileName
     });
 
     // Save Blog to DB
@@ -43,7 +44,7 @@ export default {
     } catch (err) {
       throw err;
     }
-  },
+  }),
   viewBlogs: async () => {
     try {
       const blogs = await Blog.find();
@@ -55,14 +56,14 @@ export default {
       throw err;
     }
   },
-  updateBlog: async args => {
+  updateBlog: combineResolvers(isAuthenticated, async args => {
     try {
       const updatedBlog = await Blog.findByIdAndUpdate(args.blogId, args, {
         new: true
       });
 
       if (!updatedBlog) {
-        throw new Error("Blog was Not Found");
+        throw new ApolloError("Blog was Not Found");
       }
 
       return updatedBlog;
@@ -70,13 +71,13 @@ export default {
       console.log(err);
       throw err;
     }
-  },
-  deleteBlog: async args => {
+  }),
+  deleteBlog: combineResolvers(isAuthenticated, async args => {
     try {
       const deletedBlog = await Blog.findByIdAndRemove(args.blogId);
 
       if (!deletedBlog) {
-        throw new Error("Blog was Not Found");
+        throw new ApolloError("Blog was Not Found");
       }
 
       // Find the user who created the post and delete post from his createdPost collection
@@ -100,7 +101,7 @@ export default {
     } catch (err) {
       throw err;
     }
-  }
+  })
   // uploadImage: async ({ fileName }) => {
   //   // const mainDir = path.dirname(require.main.filename);
   //   // fileName = `${mainDir}/uploads/${fileName}`;

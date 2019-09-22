@@ -9,7 +9,7 @@ export default gql`
   }
 
   type RootQuery {
-    login(phoneNumber: String!, password: String!): UserData!
+    login(phoneNumber: String!, password: String!): Status
     userProfile(userId: ID!): UserProfile!
     viewBlogs: [Blog!]
   }
@@ -29,12 +29,7 @@ export default gql`
   type Status {
     message: String!
     value: Boolean!
-  }
-
-  type UserData {
-    userId: ID!
-    token: String!
-    tokenEXpiration: Int!
+    user: UserProfile!
   }
 
   type UserProfile {

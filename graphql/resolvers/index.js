@@ -4,9 +4,18 @@ import { GraphQLUpload } from "graphql-upload";
 import userResolver from "./user";
 import blogResolver from "./blog";
 
+import Blog from "../../models/blog";
+import User from "../../models/users";
+
 export default {
   Date: GraphQLDateTime,
   Upload: GraphQLUpload,
+  Blog: {
+    createdBy: (_, args, { logged_in_user, Id }) => User.findOne({ _id: Id })
+  },
+  UserProfile: {
+    createdBlogs: (_, args, { logged_in_user, Id }) => Blog.find()
+  },
   RootQuery: {
     login: userResolver.login,
     userProfile: userResolver.userProfile,
