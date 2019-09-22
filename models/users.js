@@ -20,10 +20,12 @@ const userSchema = new Schema({
     type: String,
     required: true
   },
-  createdBlogs: {
-    type: Schema.Types.ObjectId,
-    ref: "Blog"
-  }
+  createdBlogs: [
+    {
+      type: Schema.Types.ObjectId,
+      ref: "Blog"
+    }
+  ]
 });
 
 export default mongoose.model("User", userSchema);

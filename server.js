@@ -19,6 +19,10 @@ app.use(isAuth);
 const schema = new ApolloServer({
   typeDefs,
   resolvers,
+  context: ({ req, res }) => ({
+    logged_in_user: req.isAuth,
+    Id: req.userId
+  }),
   playground: {
     endpoint: `/graphql`,
     subscriptionsEndpoint: `ws://localhost:${port}/subscriptions`,

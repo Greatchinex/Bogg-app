@@ -13,7 +13,7 @@ cloudinary.config({
 });
 
 export default {
-  createBlog: async (args, req) => {
+  createBlog: async (_, args, req) => {
     // Create Blog
     const blog = new Blog({
       title: args.blogInput.title,
@@ -24,28 +24,32 @@ export default {
     // Save Blog to DB
     try {
       const savedBlog = await blog.save();
-      return {
-        ...savedBlog._doc,
-        createdAt: new Date(savedBlog._doc.createdAt).toISOString(),
-        updatedAt: new Date(savedBlog._doc.updatedAt).toISOString()
-      };
+
+      // Find the user who created the post and delete post from his createdPost collection
+      const singleUser = await User.findByIdAndUpdate(
+        Id,
+        { $push: { createdBlogs: savedBlog } },
+        { new: true }
+      );
+
+      // check if the user exist
+      if (!singleUser) {
+        throw new ApolloError("User Not Found");
+      }
+      await singleUser.save();
+
+      // Response
+      return savedBlog;
     } catch (err) {
-      console.log(err);
       throw err;
     }
   },
   viewBlogs: async () => {
     try {
       const blogs = await Blog.find();
-      // return blogs;
-      console.log(blogs);
-      return blogs.map(blog => {
-        return {
-          ...blog._doc,
-          updatedAt: new Date(blog._doc.updatedAt).toISOString(),
-          createdAt: new Date(blog._doc.createdAt).toISOString()
-        };
-      });
+
+      // Response
+      return blogs;
     } catch (err) {
       console.log(err);
       throw err;
@@ -53,17 +57,15 @@ export default {
   },
   updateBlog: async args => {
     try {
-      const updatedBlog = await Blog.findByIdAndUpdate(args.blogId, args);
+      const updatedBlog = await Blog.findByIdAndUpdate(args.blogId, args, {
+        new: true
+      });
 
       if (!updatedBlog) {
         throw new Error("Blog was Not Found");
       }
 
-      return {
-        ...updatedBlog._doc,
-        updatedAt: new Date(updatedBlog._doc.updatedAt).toISOString(),
-        createdAt: new Date(updatedBlog._doc.createdAt).toISOString()
-      };
+      return updatedBlog;
     } catch (err) {
       console.log(err);
       throw err;
@@ -77,8 +79,21 @@ export default {
         throw new Error("Blog was Not Found");
       }
 
+      // Find the user who created the post and delete post from his createdPost collection
+      const aUser = await User.findByIdAndUpdate(
+        Id,
+        { $pull: { createdBlogs: deletedBlog } },
+        { new: true }
+      );
+
+      // check if the user exist
+      if (!aUser) {
+        throw new ApolloError("User Not Found");
+      }
+      await aUser.save();
+
       return {
-        ...deletedBlog._doc,
+        deletedBlog,
         message: "Blog Was Deleted Successfully",
         value: true
       };
