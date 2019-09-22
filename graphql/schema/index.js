@@ -9,27 +9,24 @@ export default gql`
   type RootQuery {
     login(phoneNumber: String!, password: String!): UserData!
     userProfile(userId: ID!): UserProfile!
-    viewBlogs: [Blog!]!
+    viewBlogs: [Blog!]
   }
 
   type RootMutation {
-    createUser(userInput: UserInput): Status
-    createBlog(blogInput: BlogInput): Blog
-    updateBlog(blogId: ID!, body: String, title: String): updatedBlog
+    createUser(
+      fullName: String!
+      email: String!
+      password: String!
+      phoneNumber: String!
+    ): Status
+    createBlog(title: String!, body: String!, image: String): Blog
+    updateBlog(blogId: ID!, body: String, title: String): Blog
     deleteBlog(blogId: ID!): Status
-    uploadImage(fileName: String!): String!
   }
 
   type Status {
     message: String!
     value: Boolean!
-  }
-
-  input UserInput {
-    fullName: String!
-    email: String!
-    password: String!
-    phoneNumber: String!
   }
 
   type UserData {
@@ -54,19 +51,5 @@ export default gql`
     createdAt: String!
     updatedAt: String!
     createdBy: UserProfile!
-  }
-
-  input BlogInput {
-    title: String!
-    body: String!
-    image: String
-  }
-
-  type updatedBlog {
-    title: String
-    body: String
-    image: String
-    createdAt: String!
-    updatedAt: String!
   }
 `;

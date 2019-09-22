@@ -85,17 +85,17 @@ export default {
     } catch (err) {
       throw err;
     }
-  },
-  uploadImage: async ({ fileName }) => {
-    // const mainDir = path.dirname(require.main.filename);
-    // fileName = `${mainDir}/uploads/${fileName}`;
-    try {
-      const image = await cloudinary.v2.uploader.upload(fileName);
-
-      console.log(image);
-    } catch (err) {
-      console.log(err);
-      throw err;
-    }
   }
+  // uploadImage: async ({ fileName }) => {
+  //   // const mainDir = path.dirname(require.main.filename);
+  //   // fileName = `${mainDir}/uploads/${fileName}`;
+  //   try {
+  //     const image = await cloudinary.v2.uploader.upload(fileName);
+
+  //     console.log(image);
+  //   } catch (err) {
+  //     console.log(err);
+  //     throw err;
+  //   }
+  // }
 };

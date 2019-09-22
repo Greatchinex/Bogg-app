@@ -5,7 +5,7 @@ import { createServer } from "http";
 import { execute, subscribe } from "graphql";
 import { SubscriptionServer } from "subscriptions-transport-ws";
 
-import models from "./models";
+import "./models";
 import typeDefs from "./graphql/schema";
 import resolvers from "./graphql/resolvers";
 import isAuth from "./middlewares/auth";

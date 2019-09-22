@@ -1,17 +1,17 @@
-import authResolver from "./auth";
+import userResolver from "./user";
 import blogResolver from "./blog";
 
 export default {
   RootQuery: {
-    login: authResolver.login,
-    userProfile: authResolver.userProfile,
+    login: userResolver.login,
+    userProfile: userResolver.userProfile,
     viewBlogs: blogResolver.viewBlogs
   },
   RootMutation: {
-    createUser: authResolver.createUser,
+    createUser: userResolver.createUser,
     createBlog: blogResolver.createBlog,
     updateBlog: blogResolver.updateBlog,
-    deleteBlog: blogResolver.deleteBlog,
-    uploadImage: blogResolver.uploadImage
+    deleteBlog: blogResolver.deleteBlog
+    // uploadImage: blogResolver.uploadImage
   }
 };
