@@ -1,5 +1,6 @@
 import express from "express";
 import dotenv from "dotenv";
+import http from "http";
 import { ApolloServer } from "apollo-server-express";
 import { createServer } from "http";
 import { execute, subscribe } from "graphql";
@@ -19,36 +20,29 @@ app.use(isAuth);
 const schema = new ApolloServer({
   typeDefs,
   resolvers,
-  context: ({ req, res }) => ({
-    logged_in_user: req.isAuth,
-    Id: req.userId
-  }),
-  playground: {
-    endpoint: `/graphql`,
-    subscriptionsEndpoint: `ws://localhost:${port}/subscriptions`,
-    settings: {
-      "editor.theme": "light"
+  context: ({ req, res, connection }) => {
+    // Check for either a http request or a subscription
+    if (connection) {
+      return connection.context;
+    } else {
+      const logged_in_user = req.isAuth;
+      const Id = req.userId;
+
+      return {
+        logged_in_user,
+        Id
+      }
     }
   }
 });
 
-schema.applyMiddleware({ app });
+schema.applyMiddleware({ app, path: '/graphql' });
 
 // Wrap the Express server
-const graphQLServer = createServer(app);
+const graphQLServer = http.createServer(app);
+schema.installSubscriptionHandlers(graphQLServer);
 
 graphQLServer.listen(port, () => {
-  console.log(`Server is Listening on Port ${port}`);
-  // Set up the WebSocket for handling GraphQL subscriptions
-  new SubscriptionServer(
-    {
-      execute,
-      subscribe,
-      schema
-    },
-    {
-      server: graphQLServer,
-      path: "/subscriptions"
-    }
-  );
+  console.log(`🚀 Server is Listening on Port ${port}`);
+  console.log(`🚀 Subscriptions ready at ws://localhost:${port}${schema.subscriptionsPath}`)
 });

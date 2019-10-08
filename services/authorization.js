@@ -6,5 +6,5 @@ import { skip } from "graphql-resolvers";
 */
 
 // Check if user is logged in
-export const isAuthenticated = (_, __, { logged_in_user }) =>
+export const isAuthenticated = (_, __, { logged_in_user, Id }) =>
   logged_in_user ? skip : new AuthenticationError("Authorization Denied");

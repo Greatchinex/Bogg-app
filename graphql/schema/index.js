@@ -4,17 +4,18 @@ export default gql`
   scalar Date
 
   schema {
-    query: RootQuery
-    mutation: RootMutation
+    query: Query
+    mutation: Mutation
+    subscription: Subscription
   }
 
-  type RootQuery {
+  type Query {
     login(phoneNumber: String!, password: String!): Status
     userProfile(userId: ID!): UserProfile!
     viewBlogs: [Blog!]
   }
 
-  type RootMutation {
+  type Mutation {
     createUser(
       fullName: String!
       email: String!
@@ -24,6 +25,11 @@ export default gql`
     createBlog(title: String!, body: String!, image: String): Blog
     updateBlog(blogId: ID!, body: String, title: String): Blog
     deleteBlog(blogId: ID!): Status
+  }
+
+  type Subscription {
+    new_blog: Blog
+    update_blog: Blog
   }
 
   type Status {
@@ -45,8 +51,8 @@ export default gql`
     title: String!
     body: String!
     image: String
-    createdAt: String!
-    updatedAt: String!
+    createdAt: Date!
+    updatedAt: Date!
     createdBy: UserProfile!
   }
 `;

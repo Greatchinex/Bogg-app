@@ -16,16 +16,20 @@ export default {
   UserProfile: {
     createdBlogs: (_, args, { logged_in_user, Id }) => Blog.find()
   },
-  RootQuery: {
+  Query: {
     login: userResolver.login,
     userProfile: userResolver.userProfile,
     viewBlogs: blogResolver.viewBlogs
   },
-  RootMutation: {
+  Mutation: {
     createUser: userResolver.createUser,
     createBlog: blogResolver.createBlog,
     updateBlog: blogResolver.updateBlog,
     deleteBlog: blogResolver.deleteBlog
     // uploadImage: blogResolver.uploadImage
+  },
+  Subscription: {
+    new_blog: blogResolver.new_blog,
+    update_blog: blogResolver.update_blog
   }
 };

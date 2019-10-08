@@ -6,6 +6,11 @@ import path from "path";
 import Blog from "../../models/blog";
 import User from "../../models/users";
 import { isAuthenticated } from "../../services/authorization";
+import { pubsub } from "../../config/pubsub";
+
+// Subscription Variables
+const NEW_BLOG = "new_blog";
+const UPDATED_BLOG = "update_blog";
 
 cloudinary.config({
   cloud_name: process.env.CLOUD_NAME,
@@ -14,12 +19,12 @@ cloudinary.config({
 });
 
 export default {
-  createBlog: combineResolvers(isAuthenticated, async (_, args) => {
+  createBlog: combineResolvers(isAuthenticated, async (_, args, { Id }) => {
     // Create Blog
     const blog = new Blog({
       title: args.title,
       body: args.body,
-      fileName: args.fileName
+      createdBy: Id
     });
 
     // Save Blog to DB
@@ -39,9 +44,15 @@ export default {
       }
       await singleUser.save();
 
+      // Post Subscription
+      pubsub.publish(NEW_BLOG, {
+        [NEW_BLOG]: savedBlog
+      })
+
       // Response
       return savedBlog;
     } catch (err) {
+      console.log(err);
       throw err;
     }
   }),
@@ -56,7 +67,7 @@ export default {
       throw err;
     }
   },
-  updateBlog: combineResolvers(isAuthenticated, async args => {
+  updateBlog: combineResolvers(isAuthenticated, async (_, args) => {
     try {
       const updatedBlog = await Blog.findByIdAndUpdate(args.blogId, args, {
         new: true
@@ -66,13 +77,17 @@ export default {
         throw new ApolloError("Blog was Not Found");
       }
 
+      pubsub.publish(UPDATED_BLOG, {
+        [UPDATED_BLOG]: updatedBlog
+      })
+
       return updatedBlog;
     } catch (err) {
       console.log(err);
       throw err;
     }
   }),
-  deleteBlog: combineResolvers(isAuthenticated, async args => {
+  deleteBlog: combineResolvers(isAuthenticated, async (_, args, { Id }) => {
     try {
       const deletedBlog = await Blog.findByIdAndRemove(args.blogId);
 
@@ -101,7 +116,7 @@ export default {
     } catch (err) {
       throw err;
     }
-  })
+  }),
   // uploadImage: async ({ fileName }) => {
   //   // const mainDir = path.dirname(require.main.filename);
   //   // fileName = `${mainDir}/uploads/${fileName}`;
@@ -114,4 +129,22 @@ export default {
   //     throw err;
   //   }
   // }
+
+  /*******************************************************************
+   *******************************************************************
+    Subscriptions come here
+   *******************************************************************
+  ********************************************************************/
+
+  // Returns new post
+  new_blog: {
+    subscribe: () => {
+      return pubsub.asyncIterator([NEW_BLOG])
+    }
+  },
+  update_blog: {
+    subscribe: () => {
+      return pubsub.asyncIterator([UPDATED_BLOG])
+    }
+  }
 };

@@ -47,7 +47,7 @@ export default {
       throw err;
     }
   },
-  login: async ({ phoneNumber, password }) => {
+  login: async (_, { phoneNumber, password }) => {
     try {
       // Check if user exist in DB
       const user = await User.findOne({ phoneNumber: phoneNumber });
